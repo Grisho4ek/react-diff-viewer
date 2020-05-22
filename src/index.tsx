@@ -350,7 +350,7 @@ class DiffViewer extends React.Component<
 
   /**
    *
-   * shows and hides plus btn
+   * show and hide plus btn
    *
    * @param uniqueLineId unique line id(prefix, lineNumber, beforeCommit, afterCommit, fileId) of the current line .
    *
