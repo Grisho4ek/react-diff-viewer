@@ -24,11 +24,11 @@ export enum LineNumberPrefix {
   RIGHT = 'R'
 }
 
-interface Comment {
+/* interface Comment {
   lineId: string;
   body: string;
   [key: string]: any;
-}
+} */
 
 export interface ReactDiffViewerProps {
   // Old value to compare.
@@ -82,7 +82,7 @@ export interface ReactDiffViewerProps {
   // id source commit
   beforeCommit: string;
   // comments
-  comments?: Comment[];
+  comments?: any[];
   // commentBlock
   commentBlock?: JSX.Element;
   // filePath
@@ -435,9 +435,9 @@ class DiffViewer extends React.Component<
    *
    */
 
-  private getlineIdsArray = (arr: Comment[]) => {
+  private getlineIdsArray = (arr: any[]) => {
     return arr.reduce((acc: Array<string>, comment) => {
-      acc.push(comment.lineId);
+      acc.push(comment.body.lineId);
       return acc;
     }, []);
   };
