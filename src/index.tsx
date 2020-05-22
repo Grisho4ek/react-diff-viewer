@@ -24,12 +24,6 @@ export enum LineNumberPrefix {
   RIGHT = 'R'
 }
 
-/* interface Comment {
-  lineId: string;
-  body: string;
-  [key: string]: any;
-} */
-
 export interface ReactDiffViewerProps {
   // Old value to compare.
   oldValue: string;
@@ -81,8 +75,8 @@ export interface ReactDiffViewerProps {
   afterCommit: string;
   // id source commit
   beforeCommit: string;
-  // comments
-  comments?: any[];
+  // commentLineIds
+  commentLineIds?: string[];
   // commentBlock
   commentBlock?: JSX.Element;
   // filePath
@@ -117,7 +111,7 @@ class DiffViewer extends React.Component<
     linesOffset: 0,
     afterCommit: '',
     beforeCommit: '',
-    comments: undefined,
+    commentLineIds: undefined,
     fileId: '',
     plusBtnClassName: ''
   };
@@ -345,9 +339,8 @@ class DiffViewer extends React.Component<
           <pre className={this.styles.contentText}>{content}</pre>
           {this.renderPlusButton(
             this.state.lineIdPlusShown === uniqueLineId &&
-              !this.props.comments.find(
-                comment => comment.lineId === uniqueLineId
-              ),
+              this.props.commentLineIds &&
+              !this.props.commentLineIds.includes(uniqueLineId),
             uniqueLineId
           )}
         </td>
@@ -363,7 +356,7 @@ class DiffViewer extends React.Component<
    *
    */
   private handleHoverLineNumber = (uniqueLineId: string) => {
-    if (this.props.comments) {
+    if (this.props.commentLineIds) {
       this.setState(prevState => {
         if (prevState.lineIdPlusShown === uniqueLineId) {
           return {
@@ -392,8 +385,7 @@ class DiffViewer extends React.Component<
     isShown: boolean,
     uniqueLineId: string
   ): JSX.Element => {
-    const arr = this.getlineIdsArray(this.props.comments);
-    if (!isShown || arr.includes(uniqueLineId)) {
+    if (!isShown || this.props.commentLineIds.includes(uniqueLineId)) {
       return null;
     }
     return (
@@ -430,21 +422,6 @@ class DiffViewer extends React.Component<
 
   /**
    *
-   * helper that return Array with uniqueLineIds (comment.lineId)
-   *
-   * @param arr Array with comments
-   *
-   */
-
-  private getlineIdsArray = (arr: any[]) => {
-    return arr.reduce((acc: Array<string>, comment) => {
-      acc.push(comment.body.lineId);
-      return acc;
-    }, []);
-  };
-
-  /**
-   *
    * renders comment block (split view)
    *
    * @param leftId left line unique line id
@@ -453,8 +430,8 @@ class DiffViewer extends React.Component<
    */
   private renderSplitCommentBlockProxy = (leftId: string, rightId: string) => {
     const lineIdsArray: string[] =
-      this.props.comments instanceof Array
-        ? this.getlineIdsArray(this.props.comments)
+      this.props.commentLineIds instanceof Array
+        ? this.props.commentLineIds
         : [];
 
     if (lineIdsArray.includes(leftId) || lineIdsArray.includes(rightId)) {
@@ -483,8 +460,10 @@ class DiffViewer extends React.Component<
    *
    */
   private renderInlineCommentBlockProxy = (uniqueLineId: string) => {
-    const lineIdsArray = this.getlineIdsArray(this.props.comments);
-    if (lineIdsArray.includes(uniqueLineId)) {
+    if (
+      this.props.commentLineIds &&
+      this.props.commentLineIds.includes(uniqueLineId)
+    ) {
       return (
         <tr>
           <td colSpan={6}>{this.props.renderCommentBlock(uniqueLineId)}</td>

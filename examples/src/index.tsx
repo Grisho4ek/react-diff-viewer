@@ -101,6 +101,21 @@ class Example extends React.Component<{}, ExampleState> {
     this.setState({ comments: updatedComments });
   };
 
+  /**
+   *
+   * helper that return Array with uniqueLineIds (comment.lineId)
+   *
+   * @param arr Array with commentLineIds
+   *
+   */
+
+  private getlineIdsArray = (arr: any[]) => {
+    return arr.reduce((acc: Array<string>, comment) => {
+      acc.push(comment.body.lineId);
+      return acc;
+    }, []);
+  };
+
   public render(): JSX.Element {
     return (
       <div className='react-diff-viewer-example'>
@@ -142,7 +157,7 @@ class Example extends React.Component<{}, ExampleState> {
             rightTitle='webpack.config.js master@64207ee - pushed 13 hours ago.'
             afterCommit={'afterCommit'}
             beforeCommit={'beforeCommit'}
-            comments={this.state.comments}
+            commentLineIds={this.getlineIdsArray(this.state.comments)}
             getLineId={id => this.createComment(id)}
             renderCommentBlock={id => {
               const currComment = this.state.comments.find(

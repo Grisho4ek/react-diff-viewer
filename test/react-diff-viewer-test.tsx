@@ -26,7 +26,7 @@ const bb = 456
 describe('Testing react diff viewer', (): void => {
   it('It should render a table', (): void => {
     const node = shallow(
-      <DiffViewer oldValue={oldCode} newValue={newCode} comments={[]} />
+      <DiffViewer oldValue={oldCode} newValue={newCode} commentLineIds={[]} />
     );
 
     expect(node.find('table').length).toEqual(1);
@@ -34,7 +34,7 @@ describe('Testing react diff viewer', (): void => {
 
   it('It should render diff lines in diff view', (): void => {
     const node = shallow(
-      <DiffViewer oldValue={oldCode} newValue={newCode} comments={[]} />
+      <DiffViewer oldValue={oldCode} newValue={newCode} commentLineIds={[]} />
     );
 
     expect(node.find('table > tbody tr').length).toEqual(7);
@@ -46,7 +46,7 @@ describe('Testing react diff viewer', (): void => {
         oldValue={oldCode}
         newValue={newCode}
         splitView={false}
-        comments={[]}
+        commentLineIds={[]}
       />
     );
 
