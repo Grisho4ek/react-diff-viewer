@@ -26,8 +26,10 @@ class Example extends React.Component<{}, ExampleState> {
       enableSyntaxHighlighting: true,
       comments: [
         {
-          lineId: 'L-12-beforeCommit-afterCommit-test.jsx',
-          body: 'Awesome\ncomment!'
+          body: {
+            lineId: 'L-12-beforeCommit-afterCommit-test.jsx',
+            text: 'Awesome\ncomment!'
+          }
         }
       ]
     };
@@ -90,8 +92,10 @@ class Example extends React.Component<{}, ExampleState> {
     const updatedComments = [
       ...this.state.comments,
       {
-        lineId: id,
-        body: ''
+        body: {
+          lineId: id,
+          text: ''
+        }
       }
     ];
     this.setState({ comments: updatedComments });
@@ -142,14 +146,14 @@ class Example extends React.Component<{}, ExampleState> {
             getLineId={id => this.createComment(id)}
             renderCommentBlock={id => {
               const currComment = this.state.comments.find(
-                comment => comment.lineId === id
+                comment => comment.body.lineId === id
               );
               return (
                 <CommentBlock
                   updateComment={this.updateComment}
                   removeComment={this.removeComment}
                   comment={currComment}
-                  show={currComment.body ? true : false}
+                  show={currComment.body.text}
                 />
               );
             }}

@@ -392,7 +392,8 @@ class DiffViewer extends React.Component<
     isShown: boolean,
     uniqueLineId: string
   ): JSX.Element => {
-    if (!isShown) {
+    const arr = this.getlineIdsArray(this.props.comments);
+    if (!isShown || arr.includes(uniqueLineId)) {
       return null;
     }
     return (

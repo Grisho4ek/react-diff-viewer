@@ -14,7 +14,9 @@ const CommentBlock: React.FC<Props> = ({
   show
 }) => {
   const [isComment, setIsComment] = React.useState<boolean>(show);
-  const [text, setText] = React.useState<string>(comment.body);
+  const [text, setText] = React.useState<string>(
+    comment.body ? comment.body.text : ''
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -59,9 +61,10 @@ const CommentBlock: React.FC<Props> = ({
   return (
     <div className='p-2'>
       <div className='mb-2 bg-light rounded p-2'>
-        {comment.body.split('\n').map((str: string, i: number) => (
-          <div key={i}>{str}</div>
-        ))}
+        {comment.body.text &&
+          comment.body.text
+            .split('\n')
+            .map((str: string, i: number) => <div key={i}>{str}</div>)}
       </div>
       <button
         onClick={() => setIsComment(false)}
