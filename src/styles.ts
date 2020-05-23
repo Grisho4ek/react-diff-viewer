@@ -360,7 +360,8 @@ export default (
     cursor: 'pointer',
     '&:hover': {
       transform: 'scale(1.2)'
-    }
+    },
+    lineHeight: 1
   });
 
   const plusWrapper = css({
