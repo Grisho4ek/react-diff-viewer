@@ -168,7 +168,7 @@ class Example extends React.Component<{}, ExampleState> {
                   updateComment={this.updateComment}
                   removeComment={this.removeComment}
                   comment={currComment}
-                  show={currComment.body.text}
+                  show={!!currComment.body.text}
                 />
               );
             }}

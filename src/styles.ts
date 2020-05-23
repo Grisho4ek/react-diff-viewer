@@ -23,6 +23,7 @@ export interface ReactDiffViewerStyles {
   content?: string;
   splitView?: string;
   plus?: string;
+  plusWrapper?: string;
   [key: string]: string | undefined;
 }
 
@@ -76,6 +77,7 @@ export interface ReactDiffViewerStylesOverride {
   emptyLine?: Interpolation;
   content?: Interpolation;
   plusBtn?: Interpolation;
+  plusWrapper?: Interpolation;
   titleBlock?: Interpolation;
   splitView?: Interpolation;
 }
@@ -344,9 +346,10 @@ export default (
   });
 
   const plusBtn = css({
+    display: 'none',
     position: 'absolute',
     top: '1.5px',
-    left: '-35px',
+    left: '-22px',
     width: '24px',
     height: '24px',
     background: '#0C74EF',
@@ -357,6 +360,13 @@ export default (
     cursor: 'pointer',
     '&:hover': {
       transform: 'scale(1.2)'
+    }
+  });
+
+  const plusWrapper = css({
+    color: 'red',
+    '&:hover .isPlusBtnShown': {
+      display: 'block'
     }
   });
 
@@ -382,7 +392,8 @@ export default (
     content,
     plusBtn,
     codeFoldContent,
-    titleBlock
+    titleBlock,
+    plusWrapper
   };
 
   const computerOverrideStyles: ReactDiffViewerStyles = Object.keys(

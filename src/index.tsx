@@ -268,12 +268,6 @@ class DiffViewer extends React.Component<
       content = value;
     }
 
-    const showPlusBtn = (e: React.MouseEvent) => {
-      if (added || removed) {
-        this.handleHoverLineNumber(uniqueLineId);
-      }
-    };
-
     return (
       <React.Fragment>
         {!this.props.hideLineNumbers && (
@@ -318,8 +312,6 @@ class DiffViewer extends React.Component<
             [this.styles.diffRemoved]: removed,
             [this.styles.highlightedLine]: highlightLine
           })}
-          onMouseEnter={showPlusBtn}
-          onMouseLeave={showPlusBtn}
         >
           <pre>
             {added && '+'}
@@ -327,50 +319,28 @@ class DiffViewer extends React.Component<
           </pre>
         </td>
         <td
-          className={cn(this.styles.content, {
+          className={cn(this.styles.content, this.styles.plusWrapper, {
             [this.styles.emptyLine]: !content,
             [this.styles.diffAdded]: added,
             [this.styles.diffRemoved]: removed,
             [this.styles.highlightedLine]: highlightLine
           })}
-          onMouseEnter={showPlusBtn}
-          onMouseLeave={showPlusBtn}
         >
           <pre className={this.styles.contentText}>{content}</pre>
-          {this.renderPlusButton(
-            this.state.lineIdPlusShown === uniqueLineId &&
-              this.props.commentLineIds &&
-              !this.props.commentLineIds.includes(uniqueLineId),
-            uniqueLineId
-          )}
+          <button
+            className={cn(this.styles.plusBtn, {
+              isPlusBtnShown:
+                (added || removed) &&
+                !this.props.commentLineIds.includes(uniqueLineId),
+              [this.props.plusBtnClassName]: this.props.plusBtnClassName
+            })}
+            onClick={this.getUniqueLineIdProxy(uniqueLineId)}
+          >
+            +
+          </button>
         </td>
       </React.Fragment>
     );
-  };
-
-  /**
-   *
-   * show and hide plus btn
-   *
-   * @param uniqueLineId unique line id(prefix, lineNumber, beforeCommit, afterCommit, fileId) of the current line .
-   *
-   */
-  private handleHoverLineNumber = (uniqueLineId: string) => {
-    if (this.props.commentLineIds) {
-      this.setState(prevState => {
-        if (prevState.lineIdPlusShown === uniqueLineId) {
-          return {
-            ...prevState,
-            lineIdPlusShown: ''
-          };
-        } else {
-          return {
-            ...prevState,
-            lineIdPlusShown: uniqueLineId
-          };
-        }
-      });
-    }
   };
 
   /**
