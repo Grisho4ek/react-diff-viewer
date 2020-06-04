@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import ReactDiff, { DiffMethod } from '../../lib/index';
 import CommentBlock from './CommentBlock';
+import { CommentInfo } from '../../lib/index';
 const oldJs = require('./diff/javascript/old.rjs').default;
 const newJs = require('./diff/javascript/new.rjs').default;
 const logo = require('../../logo.png');
@@ -27,8 +28,12 @@ class Example extends React.Component<{}, ExampleState> {
       comments: [
         {
           body: {
-            lineId: 'L-12-beforeCommit-afterCommit-test.jsx',
-            text: 'Awesome\ncomment!'
+            lineId: 'L-12-beforeCommit-afterCommit-test/test.jsx',
+            text: 'Awesome\ncomment!',
+            fileId: 'test/test.jsx',
+            prefix: 'L',
+            lineNumber: 12,
+            specifier: 'beforeCommit-afterCommit'
           }
         }
       ]
@@ -65,11 +70,13 @@ class Example extends React.Component<{}, ExampleState> {
     return <span id={lineId} dangerouslySetInnerHTML={{ __html: language }} />;
   };
 
-  private updateComment = (id: string, text?: string) => {
+  private updateComment = (commentInfo: any, text?: string) => {
     const updatedComments = this.state.comments.map(comment => {
-      if (comment.lineId === id) {
+      console.log(comment);
+      if (comment.lineId === commentInfo.lineId) {
         return {
-          lineId: id,
+          ...commentInfo,
+          lineId: commentInfo.uniqueLineId,
           body: text
         };
       }
@@ -81,19 +88,20 @@ class Example extends React.Component<{}, ExampleState> {
     });
   };
 
-  private removeComment = (id: string) => {
+  private removeComment = (lineId: string) => {
     const updatedComments = this.state.comments.filter(
-      comment => comment.lineId !== id
+      comment => comment.lineId !== lineId
     );
     this.setState({ comments: updatedComments });
   };
 
-  private createComment = (id: string) => {
+  private createComment = (commentInfo: CommentInfo) => {
     const updatedComments = [
       ...this.state.comments,
       {
         body: {
-          lineId: id,
+          ...commentInfo,
+          lineId: commentInfo.lineId,
           text: ''
         }
       }
@@ -158,10 +166,11 @@ class Example extends React.Component<{}, ExampleState> {
             afterCommit={'afterCommit'}
             beforeCommit={'beforeCommit'}
             commentLineIds={this.getlineIdsArray(this.state.comments)}
-            getLineId={id => this.createComment(id)}
-            renderCommentBlock={id => {
+            getCommentInfo={commentInfo => this.createComment(commentInfo)}
+            renderCommentBlock={commentInfo => {
+              console.log(commentInfo);
               const currComment = this.state.comments.find(
-                comment => comment.body.lineId === id
+                comment => comment.body.lineId === commentInfo.lineId
               );
               return (
                 <CommentBlock
@@ -172,7 +181,7 @@ class Example extends React.Component<{}, ExampleState> {
                 />
               );
             }}
-            fileId={'test.jsx'}
+            fileId={'test/test.jsx'}
           />
         </div>
         <footer>

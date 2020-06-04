@@ -24,6 +24,14 @@ export enum LineNumberPrefix {
   RIGHT = 'R'
 }
 
+export interface CommentInfo {
+  lineId: string;
+  prefix: string;
+  lineNumber: number;
+  specifier: string;
+  fileId: string;
+}
+
 export interface ReactDiffViewerProps {
   // Old value to compare.
   oldValue: string;
@@ -44,9 +52,9 @@ export interface ReactDiffViewerProps {
   // Show only diff between the two values.
   showDiffOnly?: boolean;
   // Render prop to format final string before displaying them in the UI.
-  renderContent?: (source: string, uniqueLineId: string) => JSX.Element;
+  renderContent?: (source: string, lineId: string) => JSX.Element;
   // Render prop to format commentBlock component
-  renderCommentBlock?: (lineNumber: string) => JSX.Element;
+  renderCommentBlock?: (commentInfo: CommentInfo) => JSX.Element;
   // Render prop to format code fold message.
   codeFoldMessageRenderer?: (
     totalFoldedLines: number,
@@ -60,7 +68,7 @@ export interface ReactDiffViewerProps {
     event: React.MouseEvent<HTMLTableCellElement>
   ) => void;
   // Function return uniqueLineId
-  getLineId?: (lineId: string) => void;
+  getCommentInfo?: (commentInfo: CommentInfo) => void;
   // Array of line ids to highlight lines.
   highlightLines?: string[];
   // Style overrides.
@@ -79,10 +87,10 @@ export interface ReactDiffViewerProps {
   commentLineIds?: string[];
   // commentBlock
   commentBlock?: JSX.Element;
-  // filePath
+  // fileId
   fileId: string;
-  // plusBtn className
-  plusBtnClassName: string;
+  // couldComment
+  couldComment?: boolean;
 }
 export interface ReactDiffViewerState {
   // Array holding the expanded code folding.
@@ -113,7 +121,7 @@ class DiffViewer extends React.Component<
     beforeCommit: '',
     commentLineIds: undefined,
     fileId: '',
-    plusBtnClassName: ''
+    couldComment: true
   };
 
   public static propTypes = {
@@ -131,7 +139,8 @@ class DiffViewer extends React.Component<
     highlightLines: PropTypes.arrayOf(PropTypes.string),
     leftTitle: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
     rightTitle: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
-    linesOffset: PropTypes.number
+    linesOffset: PropTypes.number,
+    couldComment: PropTypes.bool
   };
 
   public constructor(props: ReactDiffViewerProps) {
@@ -186,6 +195,7 @@ class DiffViewer extends React.Component<
    * onLineNumberClick handler is supplied.
    *
    * @param id Line id of a line.
+   * @param uniqueLineId uniqueLineId of a line.
    */
   private onLineNumberClickProxy = (id: string, uniqueLineId: string): any => {
     if (this.props.onLineNumberClick) {
@@ -243,7 +253,7 @@ class DiffViewer extends React.Component<
     type: DiffType,
     prefix: LineNumberPrefix,
     value: string | DiffInformation[],
-    uniqueLineId: string,
+    commentInfo: CommentInfo,
     additionalLineNumber?: number,
     additionalPrefix?: LineNumberPrefix
   ): JSX.Element => {
@@ -259,11 +269,11 @@ class DiffViewer extends React.Component<
     if (Array.isArray(value)) {
       content = this.renderWordDiff(
         value,
-        uniqueLineId,
+        commentInfo.lineId,
         this.props.renderContent
       );
     } else if (this.props.renderContent) {
-      content = this.props.renderContent(value, uniqueLineId);
+      content = this.props.renderContent(value, commentInfo.lineId);
     } else {
       content = value;
     }
@@ -274,7 +284,10 @@ class DiffViewer extends React.Component<
           <td
             onClick={
               lineNumber &&
-              this.onLineNumberClickProxy(lineNumberTemplate, uniqueLineId)
+              this.onLineNumberClickProxy(
+                lineNumberTemplate,
+                commentInfo.lineId
+              )
             }
             className={cn(this.styles.gutter, {
               [this.styles.emptyGutter]: !lineNumber,
@@ -292,7 +305,7 @@ class DiffViewer extends React.Component<
               additionalLineNumber &&
               this.onLineNumberClickProxy(
                 additionalLineNumberTemplate,
-                uniqueLineId
+                commentInfo.lineId
               )
             }
             className={cn(this.styles.gutter, {
@@ -331,10 +344,10 @@ class DiffViewer extends React.Component<
             className={cn(this.styles.plusBtn, {
               isPlusBtnShown:
                 (added || removed) &&
-                !this.props.commentLineIds.includes(uniqueLineId),
-              [this.props.plusBtnClassName]: this.props.plusBtnClassName
+                !this.props.commentLineIds.includes(commentInfo.lineId) &&
+                this.props.couldComment
             })}
-            onClick={this.getUniqueLineIdProxy(uniqueLineId)}
+            onClick={this.getCommentInfoProxy(commentInfo)}
           >
             +
           </button>
@@ -345,49 +358,30 @@ class DiffViewer extends React.Component<
 
   /**
    *
-   * renders plusBtn
+   * returns commentInfo to client
    *
-   * @param isShown boolean hide/show
-   * @param uniqueLineId unique line id(prefix, lineNumber, beforeCommit, afterCommit, fileId) of the current line .
-   *
-   */
-  private renderPlusButton = (
-    isShown: boolean,
-    uniqueLineId: string
-  ): JSX.Element => {
-    if (!isShown || this.props.commentLineIds.includes(uniqueLineId)) {
-      return null;
-    }
-    return (
-      <button
-        className={this.styles.plusBtn}
-        onClick={this.getUniqueLineIdProxy(uniqueLineId)}
-      >
-        +
-      </button>
-    );
-  };
-
-  /**
-   *
-   * returns uniqueLineId to client
-   *
-   * @param uniqueLineId unique line id(prefix, lineNumber, beforeCommit, afterCommit, fileId) of the current line .
+   * @param commentInfo commentInfo (uniqueLineId, prefix, lineNumber, beforeCommit, afterCommit, fileId) of the current line .
    *
    */
-  private getUniqueLineIdProxy = (uniqueLineId: string) => {
-    if (this.props.getLineId) {
-      return (): void => this.props.getLineId(uniqueLineId);
+  private getCommentInfoProxy = (commentInfo: CommentInfo) => {
+    if (this.props.getCommentInfo) {
+      return (): void => this.props.getCommentInfo(commentInfo);
     }
     return (): void => {};
   };
 
-  private generateUniqueLineId = (
+  private generateCommentInfo = (
     lineNumber: number,
     specifier: string,
     prefix: string
-  ) => {
-    return `${prefix}-${lineNumber}-${specifier}-${this.props.fileId}`;
+  ): CommentInfo => {
+    return {
+      lineId: `${prefix}-${lineNumber}-${specifier}-${this.props.fileId}`,
+      prefix,
+      lineNumber,
+      specifier,
+      fileId: this.props.fileId
+    };
   };
 
   /**
@@ -398,22 +392,28 @@ class DiffViewer extends React.Component<
    * @param rightId right line unique line id
    *
    */
-  private renderSplitCommentBlockProxy = (leftId: string, rightId: string) => {
+  private renderSplitCommentBlockProxy = (
+    leftInfo: CommentInfo,
+    rightInfo: CommentInfo
+  ) => {
     const lineIdsArray: string[] =
       this.props.commentLineIds instanceof Array
         ? this.props.commentLineIds
         : [];
 
-    if (lineIdsArray.includes(leftId) || lineIdsArray.includes(rightId)) {
+    if (
+      lineIdsArray.includes(leftInfo.lineId) ||
+      lineIdsArray.includes(rightInfo.lineId)
+    ) {
       return (
         <tr>
           <td colSpan={3}>
-            {lineIdsArray.includes(leftId) &&
-              this.props.renderCommentBlock(leftId)}
+            {lineIdsArray.includes(leftInfo.lineId) &&
+              this.props.renderCommentBlock(leftInfo)}
           </td>
           <td colSpan={3}>
-            {lineIdsArray.includes(rightId) &&
-              this.props.renderCommentBlock(rightId)}
+            {lineIdsArray.includes(rightInfo.lineId) &&
+              this.props.renderCommentBlock(rightInfo)}
           </td>
         </tr>
       );
@@ -429,14 +429,14 @@ class DiffViewer extends React.Component<
    * @param uniqueLineId unique line id
    *
    */
-  private renderInlineCommentBlockProxy = (uniqueLineId: string) => {
+  private renderInlineCommentBlockProxy = (commentInfo: CommentInfo) => {
     if (
       this.props.commentLineIds &&
-      this.props.commentLineIds.includes(uniqueLineId)
+      this.props.commentLineIds.includes(commentInfo.lineId)
     ) {
       return (
         <tr>
-          <td colSpan={6}>{this.props.renderCommentBlock(uniqueLineId)}</td>
+          <td colSpan={6}>{this.props.renderCommentBlock(commentInfo)}</td>
         </tr>
       );
     }
@@ -456,12 +456,12 @@ class DiffViewer extends React.Component<
     { left, right }: LineInformation,
     index: number
   ): JSX.Element => {
-    const leftId = this.generateUniqueLineId(
+    const leftInfo = this.generateCommentInfo(
       left.lineNumber,
       `${this.props.beforeCommit}-${this.props.afterCommit}`,
       LineNumberPrefix.LEFT
     );
-    const rightId = this.generateUniqueLineId(
+    const rightInfo = this.generateCommentInfo(
       right.lineNumber,
       `${this.props.beforeCommit}-${this.props.afterCommit}`,
       LineNumberPrefix.RIGHT
@@ -474,17 +474,17 @@ class DiffViewer extends React.Component<
             left.type,
             LineNumberPrefix.LEFT,
             left.value,
-            leftId
+            leftInfo
           )}
           {this.renderLine(
             right.lineNumber,
             right.type,
             LineNumberPrefix.RIGHT,
             right.value,
-            rightId
+            rightInfo
           )}
         </tr>
-        {this.renderSplitCommentBlockProxy(leftId, rightId)}
+        {this.renderSplitCommentBlockProxy(leftInfo, rightInfo)}
       </React.Fragment>
     );
   };
@@ -503,18 +503,19 @@ class DiffViewer extends React.Component<
   ): JSX.Element => {
     let content;
 
-    const leftId = this.generateUniqueLineId(
+    const leftInfo = this.generateCommentInfo(
       left.lineNumber,
       `${this.props.beforeCommit}-${this.props.afterCommit}`,
       LineNumberPrefix.LEFT
     );
-    const rightId = this.generateUniqueLineId(
+
+    const rightInfo = this.generateCommentInfo(
       right.lineNumber,
       `${this.props.beforeCommit}-${this.props.afterCommit}`,
       LineNumberPrefix.RIGHT
     );
 
-    let currLineId = '';
+    let currLineInfo: CommentInfo;
 
     if (left.type === DiffType.REMOVED && right.type === DiffType.ADDED) {
       return (
@@ -525,22 +526,22 @@ class DiffViewer extends React.Component<
               left.type,
               LineNumberPrefix.LEFT,
               left.value,
-              leftId,
+              leftInfo,
               null
             )}
           </tr>
-          {this.renderInlineCommentBlockProxy(leftId)}
+          {this.renderInlineCommentBlockProxy(leftInfo)}
           <tr className={this.styles.line}>
             {this.renderLine(
               null,
               right.type,
               LineNumberPrefix.RIGHT,
               right.value,
-              rightId,
+              rightInfo,
               right.lineNumber
             )}
           </tr>
-          {this.renderInlineCommentBlockProxy(rightId)}
+          {this.renderInlineCommentBlockProxy(rightInfo)}
         </React.Fragment>
       );
     }
@@ -550,10 +551,10 @@ class DiffViewer extends React.Component<
         left.type,
         LineNumberPrefix.LEFT,
         left.value,
-        leftId,
+        leftInfo,
         null
       );
-      currLineId = leftId;
+      currLineInfo = leftInfo;
     }
     if (left.type === DiffType.DEFAULT) {
       content = this.renderLine(
@@ -561,11 +562,11 @@ class DiffViewer extends React.Component<
         left.type,
         LineNumberPrefix.LEFT,
         left.value,
-        leftId,
+        leftInfo,
         right.lineNumber,
         LineNumberPrefix.RIGHT
       );
-      currLineId = leftId;
+      currLineInfo = leftInfo;
     }
     if (right.type === DiffType.ADDED) {
       content = this.renderLine(
@@ -573,10 +574,10 @@ class DiffViewer extends React.Component<
         right.type,
         LineNumberPrefix.RIGHT,
         right.value,
-        rightId,
+        rightInfo,
         right.lineNumber
       );
-      currLineId = rightId;
+      currLineInfo = rightInfo;
     }
 
     return (
@@ -584,7 +585,7 @@ class DiffViewer extends React.Component<
         <tr key={index} className={this.styles.line}>
           {content}
         </tr>
-        {this.renderInlineCommentBlockProxy(currLineId)}
+        {this.renderInlineCommentBlockProxy(currLineInfo)}
       </>
     );
   };

@@ -6,6 +6,13 @@ export declare enum LineNumberPrefix {
     LEFT = "L",
     RIGHT = "R"
 }
+export interface CommentInfo {
+    lineId: string;
+    prefix: string;
+    lineNumber: number;
+    specifier: string;
+    fileId: string;
+}
 export interface ReactDiffViewerProps {
     oldValue: string;
     newValue: string;
@@ -16,11 +23,11 @@ export interface ReactDiffViewerProps {
     extraLinesSurroundingDiff?: number;
     hideLineNumbers?: boolean;
     showDiffOnly?: boolean;
-    renderContent?: (source: string, uniqueLineId: string) => JSX.Element;
-    renderCommentBlock?: (lineNumber: string) => JSX.Element;
+    renderContent?: (source: string, lineId: string) => JSX.Element;
+    renderCommentBlock?: (commentInfo: CommentInfo) => JSX.Element;
     codeFoldMessageRenderer?: (totalFoldedLines: number, leftStartLineNumber: number, rightStartLineNumber: number) => JSX.Element;
     onLineNumberClick?: (lineId: string, uniqueLineId: string, event: React.MouseEvent<HTMLTableCellElement>) => void;
-    getLineId?: (lineId: string) => void;
+    getCommentInfo?: (commentInfo: CommentInfo) => void;
     highlightLines?: string[];
     styles?: ReactDiffViewerStylesOverride;
     useDarkTheme?: boolean;
@@ -31,7 +38,7 @@ export interface ReactDiffViewerProps {
     commentLineIds?: string[];
     commentBlock?: JSX.Element;
     fileId: string;
-    plusBtnClassName: string;
+    couldComment?: boolean;
 }
 export interface ReactDiffViewerState {
     expandedBlocks?: number[];
@@ -56,6 +63,7 @@ declare class DiffViewer extends React.Component<ReactDiffViewerProps, ReactDiff
         leftTitle: PropTypes.Requireable<string | PropTypes.ReactElementLike>;
         rightTitle: PropTypes.Requireable<string | PropTypes.ReactElementLike>;
         linesOffset: PropTypes.Requireable<number>;
+        couldComment: PropTypes.Requireable<boolean>;
     };
     constructor(props: ReactDiffViewerProps);
     /**
@@ -80,6 +88,7 @@ declare class DiffViewer extends React.Component<ReactDiffViewerProps, ReactDiff
      * onLineNumberClick handler is supplied.
      *
      * @param id Line id of a line.
+     * @param uniqueLineId uniqueLineId of a line.
      */
     private onLineNumberClickProxy;
     /**
@@ -105,22 +114,13 @@ declare class DiffViewer extends React.Component<ReactDiffViewerProps, ReactDiff
     private renderLine;
     /**
      *
-     * renders plusBtn
+     * returns commentInfo to client
      *
-     * @param isShown boolean hide/show
-     * @param uniqueLineId unique line id(prefix, lineNumber, beforeCommit, afterCommit, fileId) of the current line .
-     *
-     */
-    private renderPlusButton;
-    /**
-     *
-     * returns uniqueLineId to client
-     *
-     * @param uniqueLineId unique line id(prefix, lineNumber, beforeCommit, afterCommit, fileId) of the current line .
+     * @param commentInfo commentInfo (uniqueLineId, prefix, lineNumber, beforeCommit, afterCommit, fileId) of the current line .
      *
      */
-    private getUniqueLineIdProxy;
-    private generateUniqueLineId;
+    private getCommentInfoProxy;
+    private generateCommentInfo;
     /**
      *
      * renders comment block (split view)

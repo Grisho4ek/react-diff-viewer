@@ -26,8 +26,7 @@
     "publish:examples:local": "NODE_ENV=production yarn build:examples && gh-pages -d examples/dist",
     "start:examples": "webpack-dev-server --open --hot --inline",
     "test": "mocha --require ts-node/register --require enzyme.ts ./test/**",
-    "test:watch": "mocha --require ts-node/register --require enzyme.ts --watch-extensions ts,tsx --watch ./test/**",
-    "prepare": "npm run build"
+    "test:watch": "mocha --require ts-node/register --require enzyme.ts --watch-extensions ts,tsx --watch ./test/**"
   },
   "dependencies": {
     "classnames": "^2.2.6",

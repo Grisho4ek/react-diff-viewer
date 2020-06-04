@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { CommentInfo } from '../../lib';
 
 interface Props {
-  updateComment: (lineId: string, text: string) => void;
-  removeComment: (id: string) => void;
+  updateComment: (commentInfo: CommentInfo, text: string) => void;
+  removeComment: (lineId: string) => void;
   comment: any;
   show: boolean;
 }
@@ -38,7 +39,7 @@ const CommentBlock: React.FC<Props> = ({
             if (!text) {
               return removeComment(comment.lineId);
             }
-            updateComment(comment.lineId, text);
+            updateComment(comment, text);
             setIsComment(true);
           }}
         >
