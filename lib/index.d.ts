@@ -9,7 +9,7 @@ export declare enum LineNumberPrefix {
 export interface CommentInfo {
     lineId: string;
     prefix: string;
-    lineNumber: number;
+    lineNumber: string;
     specifier: string;
     fileId: string;
 }

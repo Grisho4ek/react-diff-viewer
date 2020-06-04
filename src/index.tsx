@@ -27,7 +27,7 @@ export enum LineNumberPrefix {
 export interface CommentInfo {
   lineId: string;
   prefix: string;
-  lineNumber: number;
+  lineNumber: string;
   specifier: string;
   fileId: string;
 }
@@ -378,7 +378,7 @@ class DiffViewer extends React.Component<
     return {
       lineId: `${prefix}-${lineNumber}-${specifier}-${this.props.fileId}`,
       prefix,
-      lineNumber,
+      lineNumber: lineNumber.toString(),
       specifier,
       fileId: this.props.fileId
     };
