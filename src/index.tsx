@@ -378,7 +378,7 @@ class DiffViewer extends React.Component<
     return {
       lineId: `${prefix}-${lineNumber}-${specifier}-${this.props.fileId}`,
       prefix,
-      lineNumber: lineNumber.toString(),
+      lineNumber: `${lineNumber}`,
       specifier,
       fileId: this.props.fileId
     };
