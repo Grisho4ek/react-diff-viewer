@@ -3,15 +3,15 @@ import * as PropTypes from 'prop-types';
 import cn from 'classnames';
 
 import {
-  computeLineInformation,
-  LineInformation,
-  DiffInformation,
-  DiffType,
-  DiffMethod
+	computeLineInformation,
+	LineInformation,
+	DiffInformation,
+	DiffType,
+	DiffMethod,
 } from './compute-lines';
 import computeStyles, {
-  ReactDiffViewerStylesOverride,
-  ReactDiffViewerStyles
+	ReactDiffViewerStylesOverride,
+	ReactDiffViewerStyles,
 } from './styles';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

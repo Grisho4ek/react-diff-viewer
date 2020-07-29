@@ -28,30 +28,30 @@ export interface ReactDiffViewerStyles {
 }
 
 export interface ReactDiffViewerStylesVariables {
-  diffViewerBackground?: string;
-  diffViewerTitleBackground?: string;
-  diffViewerColor?: string;
-  diffViewerTitleColor?: string;
-  diffViewerTitleBorderColor?: string;
-  addedBackground?: string;
-  addedColor?: string;
-  removedBackground?: string;
-  removedColor?: string;
-  wordAddedBackground?: string;
-  wordRemovedBackground?: string;
-  addedGutterBackground?: string;
-  removedGutterBackground?: string;
-  gutterBackground?: string;
-  gutterBackgroundDark?: string;
-  highlightBackground?: string;
-  highlightGutterBackground?: string;
-  codeFoldGutterBackground?: string;
-  codeFoldBackground?: string;
-  emptyLineBackground?: string;
-  gutterColor?: string;
-  addedGutterColor?: string;
-  removedGutterColor?: string;
-  codeFoldContentColor?: string;
+	diffViewerBackground?: string;
+	diffViewerTitleBackground?: string;
+	diffViewerColor?: string;
+	diffViewerTitleColor?: string;
+	diffViewerTitleBorderColor?: string;
+	addedBackground?: string;
+	addedColor?: string;
+	removedBackground?: string;
+	removedColor?: string;
+	wordAddedBackground?: string;
+	wordRemovedBackground?: string;
+	addedGutterBackground?: string;
+	removedGutterBackground?: string;
+	gutterBackground?: string;
+	gutterBackgroundDark?: string;
+	highlightBackground?: string;
+	highlightGutterBackground?: string;
+	codeFoldGutterBackground?: string;
+	codeFoldBackground?: string;
+	emptyLineBackground?: string;
+	gutterColor?: string;
+	addedGutterColor?: string;
+	removedGutterColor?: string;
+	codeFoldContentColor?: string;
 }
 
 export interface ReactDiffViewerStylesOverride {
@@ -149,7 +149,7 @@ export default (
     }
   };
 
-  const variables = useDarkTheme ? themeVariables.dark : themeVariables.light;
+	const variables = useDarkTheme ? themeVariables.dark : themeVariables.light;
 
   const content = css({
     width: '100%',
